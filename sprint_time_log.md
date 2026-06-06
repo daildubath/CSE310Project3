@@ -35,7 +35,7 @@ The expected minimum amount of time each Sprint for each category is as follows:
 | 6/4  |            | TP       | Switched library, got working QR code program using open source program | 120           |
 | 6/5  |            | TP       | Tried again on git                                                      | 30            |
 | 6/5  |            | IM       | Experimented with AI comments and debugging                             | 120           |
-|      |            |          |                                                                         |               |
+| 6/6  |            | IM       | Added Features, Made video, and finished Readme and timelog.            | 210           |
 |      |            |          |                                                                         |               |
 | 6/4  |            | MTG      | Lecture and standup                                                     | 60            |
 | 6/2  |            | MTG      | Lecture                                                                 | 60            |
@@ -48,7 +48,7 @@ _Note: Add more rows as needed._
 
 | Categroy               | Total Time (Hours:Minutes) |
 |------------------------|:--------------------------:|
-| IM - Individual Module |                            |
-| TP - Team Project      |                            |
-| MTG - Class Meetings   |                            |
-| **TOTAL**              |                            |
+| IM - Individual Module |           11:30            |
+| TP - Team Project      |            5:30            |
+| MTG - Class Meetings   |            4:00            |
+| **TOTAL**              |           21:00            |
