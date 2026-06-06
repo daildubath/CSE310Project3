@@ -1,6 +1,6 @@
-# Project Title (Update)
+# Project Title Paint App
 
-Add a description of your project here.
+A Paint app that is vector based and has a variety of tools to draw with. It has a variety of features. 
 
 ## Instructions for Build and Use
 
