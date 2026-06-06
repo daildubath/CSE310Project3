@@ -24,17 +24,23 @@ The expected minimum amount of time each Sprint for each category is as follows:
 
 ## Time Log
 
-| Date | Start Time | Category | Description                                    | Total Minutes |
-|------|------------|----------|------------------------------------------------|---------------|
-| 5/25 |            | IM       | Planned and started Project                    | 30            |
-| 5/26 |            | IM       | Downloaded software and fixed repo             | 30            |
-| 5/26 |            | TP       | Fixed and debugged git, pushed working library | 150           |
-| 6/2  |            | TP       | Merged and finished Git Portion                | 30            |
-| 6/2  |            | IM       | Game Code Examples and Learning                | 30            |
-|      |            |          |                                                |               |
-| 6/2  |            | MTG      | Lecture                                        | 60            |
-| 5/28 |            | MTG      | Lecture and standup                            | 60            |
-| 5/26 |            | MTG      | Lecture and Standup                            | 60            |
+| Date | Start Time | Category | Description                                                             | Total Minutes |
+|------|------------|----------|-------------------------------------------------------------------------|---------------|
+| 5/25 |            | IM       | Planned and started Project                                             | 30            |
+| 5/26 |            | IM       | Downloaded software and fixed repo                                      | 30            |
+| 5/26 |            | TP       | Fixed and debugged git, pushed working library                          | 150           |
+| 6/2  |            | TP       | Merged and finished Git Portion                                         | 30            |
+| 6/2  |            | IM       | Game Code Examples and Learning                                         | 30            |
+| 6/2  |            | IM       | Built MVP and added many features                                       | 270           |
+| 6/4  |            | TP       | Switched library, got working QR code program using open source program | 120           |
+| 6/5  |            | TP       | Tried again on git                                                      | 30            |
+| 6/5  |            | IM       | Experimented with AI comments and debugging                             | 120           |
+|      |            |          |                                                                         |               |
+|      |            |          |                                                                         |               |
+| 6/4  |            | MTG      | Lecture and standup                                                     | 60            |
+| 6/2  |            | MTG      | Lecture                                                                 | 60            |
+| 5/28 |            | MTG      | Lecture and standup                                                     | 60            |
+| 5/26 |            | MTG      | Lecture and Standup                                                     | 60            |
 
 _Note: Add more rows as needed._
 
