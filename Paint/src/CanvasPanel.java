@@ -37,6 +37,9 @@ public class CanvasPanel extends JPanel {
     private Color currentColor;       // Active color value to apply to new shapes
     private String currentTool;       // Active tool selection descriptor string
     private int currentThickness = 2; // Active stroke thickness value, defaults to 2px
+    private int currentOpacity = 255;
+    private boolean currentFill = false;
+
 
     /**
      * Initializes the canvas workspace and configures event listeners.
@@ -51,6 +54,8 @@ public class CanvasPanel extends JPanel {
         // Registers custom input event listeners
         setupMouseListeners();
     }
+
+    public void setCurrentFill(boolean fill) { this.currentFill = fill; }
 
     /**
      * ====================================================================
@@ -91,6 +96,10 @@ public class CanvasPanel extends JPanel {
     public void setCurrentTool(String tool) { this.currentTool = tool; }
     public void setCurrentColor(Color color) { this.currentColor = color; }
     public void setCurrentThickness(int thickness) { this.currentThickness = thickness; }
+
+    // NEW FEATURE 1: Encapsulated setter to update alpha tracking from the UI slider
+    public void setCurrentOpacity(int opacity) { this.currentOpacity = opacity; }
+
     public ArrayList<Shape> getShapes() { return shapes; }
 
     /**
@@ -120,16 +129,22 @@ public class CanvasPanel extends JPanel {
                 int x = e.getX();
                 int y = e.getY();
 
+                // NEW FEATURE 1: Extracts the RGB values from the currently selected palette color
+                // and merges them with the live opacity slider value to create an alpha-enabled Color profile.
+                Color shapeColor = new Color(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue(), currentOpacity);
+
                 // ================================================================
                 // REQUIREMENT MET: Conditionals (Switch Expressions)
                 // ================================================================
                 // Evaluates the active tool string value and initializes the matching
-                // polymorphic shape subclass constructor.
+                // polymorphic shape subclass constructor with the newly generated alpha color.
                 switch (currentTool) {
-                    case "Line" -> currentShape = new LineShape(x, y, x, y, currentColor, currentThickness);
-                    case "Rectangle" -> currentShape = new RectangleShape(x, y, x, y, currentColor, currentThickness);
-                    case "Oval" -> currentShape = new OvalShape(x, y, x, y, currentColor, currentThickness);
-                    case "Freehand" -> currentShape = new FreehandShape(x, y, currentColor, currentThickness);
+                    // UPDATED: All constructors now receive the `currentFill` boolean parameter
+                    case "Line" -> currentShape = new LineShape(x, y, x, y, shapeColor, currentThickness, currentFill);
+                    case "Rectangle" -> currentShape = new RectangleShape(x, y, x, y, shapeColor, currentThickness, currentFill);
+                    case "Oval" -> currentShape = new OvalShape(x, y, x, y, shapeColor, currentThickness, currentFill);
+                    case "Triangle" -> currentShape = new TriangleShape(x, y, x, y, shapeColor, currentThickness, currentFill);
+                    case "Freehand" -> currentShape = new FreehandShape(x, y, shapeColor, currentThickness, currentFill);
                 }
             }
 

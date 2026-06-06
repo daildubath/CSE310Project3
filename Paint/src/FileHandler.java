@@ -1,113 +1,115 @@
-import javax.imageio.ImageIO;
-import javax.swing.JPanel;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 /**
  * ============================================================================
  * CLASS SUMMARY: FileHandler.java
  * ============================================================================
- * This utility class manages data persistence and image generation for the
- * paint application. It operates entirely using static routines, functioning as
- * the data infrastructure manager.
+ * This utility class is completely decoupled from the UI, dedicated strictly
+ * to managing persistent data state.
  * ----------------------------------------------------------------------------
- * It fulfills two distinct roles:
- * 1. Project Session Storing/Loading: Serializes and deserializes vector object
- * data graphs to maintain full editing capabilities.
- * 2. Visual Layer Flattening: Intercepts the component rendering pipeline to
- * rasterize and bake geometry paths into standard, portable PNG image formats.
+ * It provides static methods to stream the application's array of geometric
+ * objects to and from the disk via binary serialization, as well as rasterize
+ * the live canvas into standard PNG image files.
  * ============================================================================
  */
 public class FileHandler {
 
+    // ====================================================================
+    // WARNING FIX: Robust Error Logging
+    // ====================================================================
+    // Replaces printStackTrace with a standardized enterprise logger instance
+    // bound directly to this class's context.
+    private static final Logger LOGGER = Logger.getLogger(FileHandler.class.getName());
+
     /**
      * ====================================================================
-     * REQUIREMENT MET: File I/O (Write State) / Collections (Input Parameter)
+     * REQUIREMENT MET: File I/O (Save Operation)
      * ====================================================================
-     * Converts an active ArrayList of dynamic polymorphic structural shapes
-     * into a flattened binary sequence, saving it permanently to disk.
+     * Serializes the active array collection and streams it to the disk.
      *
-     * @param shapes   The active vector history tracking collection from the canvas.
-     * @param filename The absolute target system file destination path.
+     * @param shapes   The data model containing all drawn vectors.
+     * @param filePath The absolute destination path on the user's hard drive.
      */
-    public static void saveArtwork(ArrayList<Shape> shapes, String filename) {
-        // Initializes automatic resource management (try-with-resources) to close streams automatically
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-            // Serializes the entire object graph recursively across the collection array
+    public static void saveArtwork(ArrayList<Shape> shapes, String filePath) {
+        // Utilizing a try-with-resources block to automatically close data streams
+        // and prevent system memory leaks even if an error occurs.
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
             oos.writeObject(shapes);
-            System.out.println("Successfully saved to " + filename);
-        } catch (IOException e) {
-            // Gracefully handles structural pipeline access anomalies or restricted system writes
-            System.err.println("Error saving file: " + e.getMessage());
+        } catch (Exception e) {
+            // Logs a severe error safely without crashing the main application thread
+            LOGGER.log(Level.SEVERE, "Failed to save project data to: " + filePath, e);
         }
     }
 
     /**
      * ====================================================================
-     * REQUIREMENT MET: File I/O (Read State) / Collections (Return Type)
+     * REQUIREMENT MET: File I/O (Read Operation)
      * ====================================================================
-     * Opens an existing project file, recreates the serialized binary stream
-     * back into live heap-allocated objects, and passes the reconstructed array back.
+     * Deserializes binary project state back into memory.
      *
-     * @param filename The target system data file location path.
-     * @return Rebuilt instance tracking past drawn vector objects.
+     * @param filePath The absolute path of the targeted .txt or custom data file.
+     * @return Reconstructed ArrayList sequence of Shape objects.
      */
-    @SuppressWarnings("unchecked") // Suppresses explicit type-casting alerts from raw deserialization mapping
-    public static ArrayList<Shape> loadArtwork(String filename) {
-        // try-with-resources safely encapsulates stream context disposal chains
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
-            System.out.println("Successfully loaded from " + filename);
-            // Extracts and type-casts binary representation data graph to its runtime shape list format
+    @SuppressWarnings("unchecked") // Suppresses unchecked cast warning since we enforce type during save
+    public static ArrayList<Shape> loadArtwork(String filePath) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
             return (ArrayList<Shape>) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            // Catch handles missing file exceptions or structural mutations in target shapes safely
-            System.err.println("Error loading file: " + e.getMessage());
-            // Returns an empty fallback tracking list to preserve app execution flow stability
+        } catch (Exception e) {
+            // Logs the specific file failure and returns an empty list to prevent null pointer crashes
+            LOGGER.log(Level.SEVERE, "Failed to load project data from: " + filePath, e);
             return new ArrayList<>();
         }
     }
 
     /**
      * ====================================================================
-     * REQUIREMENT MET: File I/O (Standard Export Format)
+     * REQUIREMENT MET: File I/O (Image Export)
      * ====================================================================
-     * Captures a runtime graphic element panel layer snapshot and flattens it
-     * out directly into an independent PNG file container.
+     * Converts vector layout coordinates to an uncompressed raster bitmap PNG file.
      *
-     * @param canvas   The visible application workspace panel to capture.
-     * @param filename The targeted user chosen filename path destination.
+     * @param canvas   The active rendering surface containing the vectors.
+     * @param filePath The destination absolute file system path.
      */
-    public static void exportImage(JPanel canvas, String filename) {
+    public static void exportImage(CanvasPanel canvas, String filePath) {
         try {
-            // ================================================================
-            // REQUIREMENT MET: Conditionals (File Suffix Verification)
-            // ================================================================
-            // Enforces output string sanity rules by confirming standard file extension formats
-            if (!filename.toLowerCase().endsWith(".png")) {
-                filename += ".png";
-            }
+            // Creates an empty graphical image buffer matching the current window dimensions
+            BufferedImage image = new BufferedImage(
+                    canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
-            // Constructs an off-screen blank layout canvas bitmap layer tracking RGB color pixels
-            BufferedImage image = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_RGB);
-
-            // Extracts the internal rendering drawing tool link context bound to this off-screen image
             Graphics2D g2d = image.createGraphics();
 
-            // Reroutes the drawing engine pipeline: instructs the view canvas to paint directly
-            // onto our memory-allocated bitmap surface instead of rendering to the physical monitor screen.
+            // ================================================================
+            // NEW FEATURE 3: Fill the background layer before exporting
+            // ================================================================
+            // Extracts the active background color from the panel and paints a solid rectangle
+            g2d.setColor(canvas.getBackground());
+            g2d.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+            // Instructs the canvas to paint its shape contents onto our image buffer
             canvas.paint(g2d);
+            g2d.dispose(); // Releases graphical memory resources to the OS
 
-            // Explicitly releases hardware graphics system allocations immediately
-            g2d.dispose();
+            // Ensures the string ends with the proper file extension
+            if (!filePath.toLowerCase().endsWith(".png")) {
+                filePath += ".png";
+            }
 
-            // Writes the final uncompressed image matrix directly to persistent file storage
-            ImageIO.write(image, "png", new File(filename));
-            System.out.println("Successfully exported to " + filename);
+            // Writes the encoded binary image data to the disk
+            ImageIO.write(image, "png", new File(filePath));
+
         } catch (Exception e) {
-            // Insulates program thread context layers from experiencing dynamic export runtime failures
-            System.err.println("Error exporting image: " + e.getMessage());
+            // Logs rendering or writing errors
+            LOGGER.log(Level.SEVERE, "Failed to export PNG image to: " + filePath, e);
         }
     }
 }

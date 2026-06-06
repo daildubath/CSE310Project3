@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.io.Serial;
 
 /**
  * ============================================================================
@@ -21,6 +22,9 @@ import java.awt.Graphics2D;
 // and the parent execution architecture from the base Shape class.
 public class OvalShape extends Shape {
 
+    // Handles error of older art versions that do not include fill
+    @Serial
+    private static final long serialVersionUID = 6107337121512270032L;
     /**
      * Constructs an OvalShape instance by routing structural configuration
      * properties directly up to the base superclass constructor layer.
@@ -32,9 +36,9 @@ public class OvalShape extends Shape {
      * @param color     The specific Color profile allocated to this vector object.
      * @param thickness The stroke width mapping size allocated to the outline.
      */
-    public OvalShape(int startX, int startY, int endX, int endY, Color color, int thickness) {
+    public OvalShape(int startX, int startY, int endX, int endY, Color color, int thickness, boolean isFilled) {
         // Leverages inheritance properties to chain tracking initialization to the superclass
-        super(startX, startY, endX, endY, color, thickness);
+        super(startX, startY, endX, endY, color, thickness, isFilled);
     }
 
     /**
@@ -65,6 +69,10 @@ public class OvalShape extends Shape {
 
         // Instructs the 2D hardware graphics engine to project an oval outline circumscribed
         // entirely within the calculated rectangular bounding box grid constraints.
-        g2d.drawOval(x, y, width, height);
+        if (isFilled) {
+            g2d.fillOval(x, y, width, height);
+        } else {
+            g2d.drawOval(x, y, width, height);
+        }
     }
 }

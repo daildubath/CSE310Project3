@@ -1,6 +1,8 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.io.Serial;
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
 /**
@@ -29,6 +31,9 @@ public class FreehandShape extends Shape {
      * because the reference container never changes after instantiation,
      * even as elements are continuously appended to it.
      */
+    // Handles error of older art versions that do not include fill
+    @Serial
+    private static final long serialVersionUID = -5994723871077374834L;
     private final ArrayList<Point> points;
 
     /**
@@ -38,10 +43,11 @@ public class FreehandShape extends Shape {
      * @param startY    The initial vertical coordinate grid origin.
      * @param color     The targeted stroke color profile.
      * @param thickness The dimension width scale allocated to the stroke.
+     * @param isFilled  Indicates fill state (passed to parent, though unused by paths).
      */
-    public FreehandShape(int startX, int startY, Color color, int thickness) {
+    public FreehandShape(int startX, int startY, Color color, int thickness, boolean isFilled) {
         // Leverages parent constructor rules to initialize root properties
-        super(startX, startY, startX, startY, color, thickness);
+        super(startX, startY, startX, startY, color, thickness, isFilled);
 
         // Allocates memory for our position collection array layout
         points = new ArrayList<>();
@@ -83,19 +89,42 @@ public class FreehandShape extends Shape {
         }
 
         // ================================================================
+        // WARNING FIX: Extracted Method Implementation
+        // ================================================================
+        // Calls the separated helper method to construct the geometry before rendering
+        Path2D path = buildContinuousPath();
+
+        // Renders the entire path string simultaneously with a single opacity calculation
+        g2d.draw(path);
+    }
+
+    /**
+     * ====================================================================
+     * REQUIREMENT MET: Functions / Custom Methods (Helper Routine)
+     * ====================================================================
+     * Constructs a continuous geometric path from the stored coordinate list.
+     * Extracted from drawShape to improve modularity and readability.
+     * * @return A finalized Path2D object ready for the graphics engine.
+     */
+    private Path2D buildContinuousPath() {
+        Path2D path = new Path2D.Float();
+
+        // ================================================================
+        // WARNING FIX: Modern Java Collections API
+        // ================================================================
+        // Replaced .get(0) with .getFirst() for safer, cleaner code expression
+        path.moveTo(points.getFirst().x, points.getFirst().y);
+
+        // ================================================================
         // REQUIREMENT MET: Loops (Array Path Reconstruction)
         // ================================================================
-        // Loops through index point array boundaries to systematically stitch
-        // sequential pairs together into a seamless visual string line.
-        for (int i = 0; i < points.size() - 1; i++) {
-            // Isolates the active starting node segment point reference
-            Point p1 = points.get(i);
-
-            // Isolates the subsequent adjacent destination point reference
-            Point p2 = points.get(i + 1);
-
-            // Draws an atomic line link bridge spanning from p1 directly to p2
-            g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+        // Iterates through the remaining stored points, appending them as vertices
+        // on our continuous path object.
+        for (int i = 1; i < points.size(); i++) {
+            Point p = points.get(i);
+            path.lineTo(p.x, p.y);
         }
+
+        return path;
     }
 }

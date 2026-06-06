@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.io.Serial;
 
 /**
  * ============================================================================
@@ -19,6 +20,9 @@ import java.awt.Graphics2D;
 // and the core drawing workflow from its abstract parent class, Shape.
 public class LineShape extends Shape {
 
+    // Handles error of older art versions that do not include fill
+    @Serial
+    private static final long serialVersionUID = 4867286338605917586L;
     /**
      * Constructs a LineShape instance by passing configuration parameters directly
      * up to the base parent constructor layer.
@@ -30,9 +34,8 @@ public class LineShape extends Shape {
      * @param color     The specific Color profile allocated to this vector object.
      * @param thickness The stroke width mapping size allocated to the line.
      */
-    public LineShape(int startX, int startY, int endX, int endY, Color color, int thickness) {
-        // Leverages inheritance properties to chain tracking initialization to the superclass
-        super(startX, startY, endX, endY, color, thickness);
+    public LineShape(int startX, int startY, int endX, int endY, Color color, int thickness, boolean isFilled) {
+        super(startX, startY, endX, endY, color, thickness, isFilled);
     }
 
     /**
